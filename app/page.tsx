@@ -1,103 +1,108 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import Header from '@/components/Header';
+import InvestorCard from '@/components/InvestorCard';
+import StockSearch from '@/components/StockSearch';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedInvestors, setSelectedInvestors] = useState<string[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const investors = [
+    {
+      id: 'buffett',
+      name: 'Warren Buffett',
+      title: 'CEO of Berkshire Hathaway',
+      philosophy: 'Value investing pioneer focused on buying undervalued companies with strong fundamentals and holding them long-term.'
+    },
+    {
+      id: 'wood',
+      name: 'Cathie Wood',
+      title: 'CEO of ARK Invest',
+      philosophy: 'Disruptive innovation investor focusing on genomics, artificial intelligence, robotics, and blockchain technology.'
+    },
+    {
+      id: 'ackman',
+      name: 'Bill Ackman',
+      title: 'CEO of Pershing Square Capital',
+      philosophy: 'Activist investor who takes large positions in companies and pushes for operational improvements.'
+    },
+    {
+      id: 'gross',
+      name: 'Bill Gross',
+      title: 'Co-founder of PIMCO',
+      philosophy: 'Bond king known for expertise in fixed income markets and macroeconomic analysis.'
+    }
+  ];
+
+  const handleInvestorSelect = (investorId: string) => {
+    if (selectedInvestors.includes(investorId)) {
+      setSelectedInvestors(selectedInvestors.filter(id => id !== investorId));
+    } else if (selectedInvestors.length < 5) {
+      setSelectedInvestors([...selectedInvestors, investorId]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <section className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Get Investment Advice from Legendary Investors
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Create your personal board of advisors from the world's most successful investors. 
+            Get AI-powered insights based on their proven strategies and philosophies.
+          </p>
+        </section>
+
+        {/* Stock Search Section */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Search for Investment Opportunities
+          </h2>
+          <div className="flex justify-center">
+            <StockSearch />
+          </div>
+        </section>
+
+        {/* Investor Selection Section */}
+        <section>
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Choose Your Advisory Board
+            </h2>
+            <p className="text-gray-600">
+              Select 2-5 legendary investors to form your personal advisory board 
+              ({selectedInvestors.length}/5 selected)
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {investors.map((investor) => (
+              <InvestorCard
+                key={investor.id}
+                name={investor.name}
+                title={investor.title}
+                philosophy={investor.philosophy}
+                selected={selectedInvestors.includes(investor.id)}
+                onSelect={() => handleInvestorSelect(investor.id)}
+              />
+            ))}
+          </div>
+
+          {selectedInvestors.length >= 2 && (
+            <div className="mt-12 text-center">
+              <button className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8 py-4 rounded-lg transition-colors">
+                Get Investment Recommendations
+              </button>
+            </div>
+          )}
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
