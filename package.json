@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "doppler run -- next dev --turbopack",
-    "build": "doppler run -- next build",
+    "build": "next build",
     "start": "doppler run -- next start",
     "lint": "next lint",
     "db:generate": "doppler run -- drizzle-kit generate",
