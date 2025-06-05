@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { InvestorRecommendation } from '@/types/recommendation';
 
 interface RecommendationRequest {
   selectedInvestors: string[];
@@ -48,13 +49,13 @@ const investorPersonas: Record<string, InvestorPersona> = {
 async function generatePersonaRecommendation(
   persona: InvestorPersona,
   stockSymbol: string
-): Promise<any> {
+): Promise<Omit<InvestorRecommendation, 'investor'>> {
   // In a real implementation, this would call Gemini API to generate persona-based analysis
   // For now, returning structured mock data
   
   const recommendations = {
     buffett: {
-      position: 'BUY',
+      position: 'BUY' as const,
       confidence: 0.75,
       rationale: `Based on Warren Buffett's value investing principles, ${stockSymbol} appears undervalued relative to its intrinsic value. The company shows strong fundamentals with consistent free cash flow generation and a sustainable competitive advantage (moat).`,
       keyPoints: [
@@ -69,7 +70,7 @@ async function generatePersonaRecommendation(
       ]
     },
     wood: {
-      position: 'STRONG BUY',
+      position: 'STRONG BUY' as const,
       confidence: 0.85,
       rationale: `From Cathie Wood's perspective, ${stockSymbol} is positioned at the forefront of technological disruption. The company's innovation pipeline and market positioning suggest exponential growth potential over the next decade.`,
       keyPoints: [
@@ -85,7 +86,7 @@ async function generatePersonaRecommendation(
       ]
     },
     ackman: {
-      position: 'BUY WITH ACTIVISM',
+      position: 'BUY WITH ACTIVISM' as const,
       confidence: 0.70,
       rationale: `Bill Ackman would see ${stockSymbol} as an opportunity for activist investing. While the company has strong assets, there's significant potential for operational improvements and strategic repositioning.`,
       keyPoints: [
@@ -101,7 +102,7 @@ async function generatePersonaRecommendation(
       ]
     },
     gross: {
-      position: 'NEUTRAL',
+      position: 'NEUTRAL' as const,
       confidence: 0.60,
       rationale: `From Bill Gross's macroeconomic perspective, ${stockSymbol} faces headwinds from rising interest rates and economic uncertainty. Consider fixed income alternatives for better risk-adjusted returns.`,
       keyPoints: [
@@ -118,7 +119,8 @@ async function generatePersonaRecommendation(
     }
   };
 
-  return recommendations[persona.name.toLowerCase().split(' ').pop()] || recommendations.buffett;
+  const lastName = persona.name.toLowerCase().split(' ').pop() || 'buffett';
+  return recommendations[lastName as keyof typeof recommendations] || recommendations.buffett;
 }
 
 export async function POST(request: NextRequest) {
@@ -166,7 +168,7 @@ export async function POST(request: NextRequest) {
     }, {} as Record<string, number>);
 
     const consensusPosition = Object.entries(positionCounts)
-      .sort(([, a], [, b]) => b - a)[0][0];
+      .sort(([, a], [, b]) => (b as number) - (a as number))[0][0];
 
     // Simulate AI-powered research summary
     const marketResearch = {

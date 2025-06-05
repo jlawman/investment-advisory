@@ -9,7 +9,7 @@ import { RecommendationResponse } from '@/types/recommendation';
 
 export default function Home() {
   const [selectedInvestors, setSelectedInvestors] = useState<string[]>([]);
-  const [selectedStock, setSelectedStock] = useState<string>('AAPL');
+  const [selectedStock] = useState<string>('AAPL');
   const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -90,7 +90,7 @@ export default function Home() {
             Get Investment Advice from Legendary Investors
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Create your personal board of advisors from the world's most successful investors. 
+            Create your personal board of advisors from the world&apos;s most successful investors. 
             Get AI-powered insights based on their proven strategies and philosophies.
           </p>
         </section>

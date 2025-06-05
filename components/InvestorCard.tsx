@@ -37,6 +37,7 @@ export default function InvestorCard({
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 bg-gray-300 rounded-full flex-shrink-0 flex items-center justify-center">
           {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={imageUrl} alt={name} className="w-full h-full rounded-full object-cover" />
           ) : (
             <span className="text-2xl font-bold text-gray-600">{name.charAt(0)}</span>
