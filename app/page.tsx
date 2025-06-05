@@ -5,13 +5,16 @@ import Header from '@/components/Header';
 import InvestorCard from '@/components/InvestorCard';
 import StockSearch from '@/components/StockSearch';
 import RecommendationDisplay from '@/components/RecommendationDisplay';
+import { InvestorCardSkeleton } from '@/components/LoadingSkeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useRecommendations } from '@/lib/hooks/useRecommendations';
 import { RecommendationResponse } from '@/types/recommendation';
 
 export default function Home() {
   const [selectedInvestors, setSelectedInvestors] = useState<string[]>([]);
   const [selectedStock] = useState<string>('AAPL');
   const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { isLoading, error, getRecommendations } = useRecommendations();
 
   const investors = [
     {
@@ -48,42 +51,24 @@ export default function Home() {
     }
   };
 
-  const getRecommendations = async () => {
+  const handleGetRecommendations = async () => {
     if (selectedInvestors.length < 2) return;
     
-    setLoading(true);
     try {
-      const response = await fetch('/api/recommendations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          selectedInvestors,
-          stockSymbol: selectedStock,
-          investmentAmount: 10000,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get recommendations');
-      }
-
-      const data = await response.json();
+      const data = await getRecommendations(selectedInvestors, selectedStock, 10000);
       setRecommendations(data);
-    } catch (error) {
-      console.error('Error getting recommendations:', error);
-      alert('Failed to get recommendations. Please try again.');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      // Error is handled by the hook
+      console.error('Failed to get recommendations:', err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-12">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        
+        <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <section className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
@@ -130,14 +115,31 @@ export default function Home() {
             ))}
           </div>
 
+          {error && (
+            <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
+              <p className="font-semibold">Error: {error}</p>
+              <p className="text-sm mt-1">Please try again or contact support if the issue persists.</p>
+            </div>
+          )}
+
           {selectedInvestors.length >= 2 && (
             <div className="mt-12 text-center">
               <button 
-                onClick={getRecommendations}
-                disabled={loading}
-                className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white text-lg px-8 py-4 rounded-lg transition-colors"
+                onClick={handleGetRecommendations}
+                disabled={isLoading}
+                className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white text-lg px-8 py-4 rounded-lg transition-colors flex items-center gap-3 mx-auto"
               >
-                {loading ? 'Generating Recommendations...' : 'Get Investment Recommendations'}
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating Recommendations...
+                  </>
+                ) : (
+                  'Get Investment Recommendations'
+                )}
               </button>
             </div>
           )}
@@ -150,6 +152,7 @@ export default function Home() {
           onClose={() => setRecommendations(null)}
         />
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
