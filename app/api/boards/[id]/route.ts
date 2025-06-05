@@ -8,9 +8,10 @@ const TEMP_USER_ID = '00000000-0000-0000-0000-000000000001';
 // GET /api/boards/[id] - Get a specific board
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const boardId = params.id;
     const userId = TEMP_USER_ID;
 

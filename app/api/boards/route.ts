@@ -192,7 +192,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the board
-    const updateData: any = {
+    const updateData: Record<string, string | Date | string[]> = {
       updatedAt: new Date(),
     };
 

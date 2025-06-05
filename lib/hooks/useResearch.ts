@@ -1,7 +1,5 @@
 import useSWR from 'swr';
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
-
 export interface ResearchData {
   stockSymbol: string;
   timeframe: '1mo' | '6mo' | '1yr';

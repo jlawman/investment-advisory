@@ -5,7 +5,6 @@ import Header from '@/components/Header';
 import InvestorCard from '@/components/InvestorCard';
 import StockSearch from '@/components/StockSearch';
 import RecommendationDisplay from '@/components/RecommendationDisplay';
-import { InvestorCardSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useRecommendations } from '@/lib/hooks/useRecommendations';
 import { RecommendationResponse } from '@/types/recommendation';

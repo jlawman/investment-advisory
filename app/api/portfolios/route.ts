@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, portfolios, holdings, stocks, recommendations } from '@/lib/db';
-import { eq, desc, and } from 'drizzle-orm';
+import { db, portfolios, holdings, stocks } from '@/lib/db';
+import { eq, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 // Temporary user ID until we implement auth
@@ -10,12 +10,6 @@ interface CreatePortfolioRequest {
   name: string;
 }
 
-interface AddHoldingRequest {
-  portfolioId: string;
-  stockSymbol: string;
-  quantity: number;
-  averageCost: number;
-}
 
 // GET /api/portfolios - Get all portfolios for the current user
 export async function GET() {
@@ -155,7 +149,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the portfolio
-    const updateData: any = {
+    const updateData: Record<string, string | Date> = {
       updatedAt: new Date(),
     };
 

@@ -131,19 +131,6 @@ export async function GET(request: NextRequest) {
     
     const userId = TEMP_USER_ID;
 
-    // Build query
-    let query = db
-      .select({
-        recommendation: recommendations,
-        board: investorBoards,
-        stock: stocks,
-      })
-      .from(recommendations)
-      .leftJoin(investorBoards, eq(recommendations.boardId, investorBoards.id))
-      .leftJoin(stocks, eq(recommendations.stockId, stocks.id))
-      .where(eq(recommendations.userId, userId))
-      .limit(limit);
-
     // Filter by board if specified
     if (boardId) {
       const board = await db
@@ -158,11 +145,23 @@ export async function GET(request: NextRequest) {
           { status: 404 }
         );
       }
-
-      query = query.where(eq(recommendations.boardId, boardId));
     }
 
-    const results = await query;
+    // Build query with conditional where clause
+    const results = await db
+      .select({
+        recommendation: recommendations,
+        board: investorBoards,
+        stock: stocks,
+      })
+      .from(recommendations)
+      .leftJoin(investorBoards, eq(recommendations.boardId, investorBoards.id))
+      .leftJoin(stocks, eq(recommendations.stockId, stocks.id))
+      .where(boardId 
+        ? eq(recommendations.boardId, boardId)
+        : eq(recommendations.userId, userId)
+      )
+      .limit(limit);
 
     return NextResponse.json({
       recommendations: results.map(r => ({

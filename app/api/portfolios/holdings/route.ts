@@ -13,10 +13,6 @@ interface AddHoldingRequest {
   averageCost: number;
 }
 
-interface UpdateHoldingRequest {
-  quantity?: number;
-  averageCost?: number;
-}
 
 // POST /api/portfolios/holdings - Add a holding to a portfolio
 export async function POST(request: NextRequest) {
