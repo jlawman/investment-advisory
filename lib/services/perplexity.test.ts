@@ -140,6 +140,7 @@ describe('PerplexityService', () => {
 });
 
 // Example usage (remove in production)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function exampleUsage() {
   if (!process.env.PERPLEXITY_API_KEY) {
     console.log('Set PERPLEXITY_API_KEY to test the service');
