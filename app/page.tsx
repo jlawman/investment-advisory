@@ -4,9 +4,14 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import InvestorCard from '@/components/InvestorCard';
 import StockSearch from '@/components/StockSearch';
+import RecommendationDisplay from '@/components/RecommendationDisplay';
+import { RecommendationResponse } from '@/types/recommendation';
 
 export default function Home() {
   const [selectedInvestors, setSelectedInvestors] = useState<string[]>([]);
+  const [selectedStock, setSelectedStock] = useState<string>('AAPL');
+  const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const investors = [
     {
@@ -40,6 +45,37 @@ export default function Home() {
       setSelectedInvestors(selectedInvestors.filter(id => id !== investorId));
     } else if (selectedInvestors.length < 5) {
       setSelectedInvestors([...selectedInvestors, investorId]);
+    }
+  };
+
+  const getRecommendations = async () => {
+    if (selectedInvestors.length < 2) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch('/api/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          selectedInvestors,
+          stockSymbol: selectedStock,
+          investmentAmount: 10000,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get recommendations');
+      }
+
+      const data = await response.json();
+      setRecommendations(data);
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+      alert('Failed to get recommendations. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,13 +132,24 @@ export default function Home() {
 
           {selectedInvestors.length >= 2 && (
             <div className="mt-12 text-center">
-              <button className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8 py-4 rounded-lg transition-colors">
-                Get Investment Recommendations
+              <button 
+                onClick={getRecommendations}
+                disabled={loading}
+                className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white text-lg px-8 py-4 rounded-lg transition-colors"
+              >
+                {loading ? 'Generating Recommendations...' : 'Get Investment Recommendations'}
               </button>
             </div>
           )}
         </section>
       </main>
+
+      {recommendations && (
+        <RecommendationDisplay 
+          data={recommendations} 
+          onClose={() => setRecommendations(null)}
+        />
+      )}
     </div>
   );
 }
