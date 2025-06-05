@@ -67,12 +67,37 @@ export async function POST(request: NextRequest) {
 
     if (stock.length === 0) {
       // Create stock entry
+      // Fetch real stock data using Perplexity
+      const stockName = stockSymbol.toUpperCase();
+      let currentPrice = averageCost.toFixed(2);
+      
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/research`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ stockSymbol, timeframe: '1mo' })
+        });
+
+        if (response.ok) {
+          const researchData = await response.json();
+          // Try to extract current price from research
+          const priceMatch = researchData.sentiment?.match(/\$(\d+(?:\.\d{2})?)/);
+          if (priceMatch && priceMatch[1]) {
+            currentPrice = priceMatch[1];
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching stock data:', error);
+      }
+      
       stock = await db
         .insert(stocks)
         .values({
           symbol: stockSymbol.toUpperCase(),
-          name: stockSymbol.toUpperCase(), // In production, fetch from API
-          currentPrice: averageCost.toFixed(2), // Use purchase price as placeholder
+          name: stockName,
+          currentPrice,
         })
         .returning();
     }

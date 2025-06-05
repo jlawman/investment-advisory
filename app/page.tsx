@@ -11,7 +11,7 @@ import { RecommendationResponse } from '@/types/recommendation';
 
 export default function Home() {
   const [selectedInvestors, setSelectedInvestors] = useState<string[]>([]);
-  const [selectedStock] = useState<string>('AAPL');
+  const [selectedStock, setSelectedStock] = useState<string>('');
   const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
   const { isLoading, error, getRecommendations } = useRecommendations();
 
@@ -51,7 +51,7 @@ export default function Home() {
   };
 
   const handleGetRecommendations = async () => {
-    if (selectedInvestors.length < 2) return;
+    if (selectedInvestors.length < 2 || !selectedStock) return;
     
     try {
       const data = await getRecommendations(selectedInvestors, selectedStock, 10000);
@@ -85,7 +85,7 @@ export default function Home() {
             Search for Investment Opportunities
           </h2>
           <div className="flex justify-center">
-            <StockSearch />
+            <StockSearch onStockSelect={setSelectedStock} selectedStock={selectedStock} />
           </div>
         </section>
 
@@ -121,7 +121,13 @@ export default function Home() {
             </div>
           )}
 
-          {selectedInvestors.length >= 2 && (
+          {selectedInvestors.length >= 2 && !selectedStock && (
+            <div className="mt-12 text-center">
+              <p className="text-gray-600 mb-4">Please select a stock above to get recommendations</p>
+            </div>
+          )}
+
+          {selectedInvestors.length >= 2 && selectedStock && (
             <div className="mt-12 text-center">
               <button 
                 onClick={handleGetRecommendations}
